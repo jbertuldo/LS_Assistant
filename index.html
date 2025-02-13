@@ -1025,3 +1025,101 @@
 </body>
 
 </html>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DeepAI Chat Demo</title>
+    <style>
+        #chat-container {
+            width: 400px;
+            border: 1px solid #ccc;
+            margin: 20px;
+            padding: 10px;
+        }
+
+        #chat-log {
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+            padding: 5px;
+            border: 1px solid #eee;
+        }
+
+        #user-input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        #send-button {
+            padding: 8px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-log"></div>
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button id="send-button">Send</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatLog = document.getElementById('chat-log');
+            const userInput = document.getElementById('user-input');
+            const sendButton = document.getElementById('send-button');
+
+            sendButton.addEventListener('click', sendMessage);
+
+            userInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if (!message) return;
+
+                // Display user message
+                displayMessage('user', message);
+                userInput.value = ''; // Clear the input
+
+                // Send the message to your server for processing
+                fetch('/api/deepai', {  // Replace with your server endpoint
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Display DeepAI's response
+                    displayMessage('deepai', data.response);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    displayMessage('error', 'Failed to get response.');
+                });
+            }
+
+            function displayMessage(sender, message) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add(sender + '-message');
+                messageElement.textContent = `${sender}: ${message}`;
+                chatLog.appendChild(messageElement);
+                chatLog.scrollTop = chatLog.scrollHeight; // Scroll to bottom
+            }
+        });
+    </script>
+</body>
+</html>
+
+
