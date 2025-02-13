@@ -288,3 +288,47 @@
   new PureCounter();
 
 })()
+
+*********************************************************************************************************************
+
+// Server-side code (Node.js with Express)
+const express = require('express');
+const fetch = require('node-fetch');
+const app = express();
+const port = 3000;
+
+app.use(express.json()); // Middleware to parse JSON bodies
+
+const DEEPAI_API_KEY = '12515297-5ff3-4bd3-8a6a-d1f973a402a8
+ '; // Replace with your actual API key
+
+app.post('/api/deepai', async (req, res) => {
+    const message = req.body.message;
+
+    try {
+        const response = await fetch('https://api.deepai.org/api/text-generator', {  // Or the relevant DeepAI API
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'api-key': DEEPAI_API_KEY
+            },
+            body: `text=${encodeURIComponent(message)}` // Or the format required by the API
+        });
+
+        const data = await response.json();
+
+        if (data.status === "OK" && data.output) { // Adjust based on the actual API response
+            res.json({ response: data.output });
+        } else {
+            console.error('DeepAI Error:', data);
+            res.status(500).json({ error: 'DeepAI API error' });
+        }
+    } catch (error) {
+        console.error('Server Error:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Server listening at http://localhost:${port}`);
+});
